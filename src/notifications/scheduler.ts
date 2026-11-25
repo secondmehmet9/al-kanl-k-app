@@ -31,6 +31,7 @@ export function configureNotifications() {
   if (Platform.OS === 'android') {
     Notifications.setNotificationChannelAsync(CHANNEL, {
       name: t('notif.channel'),
+      // eslint-disable-next-line import/namespace -- enum `export *` ile geliyor; tsc doğruluyor, eslint çözemiyor
       importance: Notifications.AndroidImportance.DEFAULT,
     }).catch(() => {});
   }

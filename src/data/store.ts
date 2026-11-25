@@ -25,7 +25,7 @@ let state: AppState = { ready: false, error: null, tasks: [], logs: {}, settings
 let persistence: Persistence | null = null;
 const listeners = new Set<() => void>();
 const taskChangeListeners = new Set<(state: AppState) => void>();
-const logChangeListeners = new Set<(task: Task, state: AppState) => void>();
+const logChangeListeners = new Set<(task: Task, date: DateKey, log: TaskLog | null) => void>();
 
 function set(next: Partial<AppState>, tasksChanged = false) {
   state = { ...state, ...next };
@@ -49,7 +49,7 @@ export const onTasksChanged = (l: (state: AppState) => void) => {
   return () => taskChangeListeners.delete(l);
 };
 /** Bir görevin check-in'i değişince (challenge senkronu için). */
-export const onLogChanged = (l: (task: Task, state: AppState) => void) => {
+export const onLogChanged = (l: (task: Task, date: DateKey, log: TaskLog | null) => void) => {
   logChangeListeners.add(l);
   return () => logChangeListeners.delete(l);
 };
@@ -163,7 +163,7 @@ function commitLog(task: Task, date: DateKey, log: TaskLog | null) {
   else delete taskLogs[date];
   set({ logs: { ...state.logs, [task.id]: taskLogs } });
   persist((p) => (log ? p.saveLog(log) : p.deleteLog(task.id, date)));
-  logChangeListeners.forEach((l) => l(task, state));
+  logChangeListeners.forEach((l) => l(task, date, log));
 }
 
 function ctx(taskId: string, date: DateKey) {

@@ -1,0 +1,35 @@
+import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router/js-tabs';
+import React from 'react';
+import type { ColorValue } from 'react-native';
+
+import { t } from '@/i18n';
+import { useTheme } from '@/theme';
+
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
+
+export default function TabsLayout() {
+  const p = useTheme();
+  const icon = (on: IconName, off: IconName) => {
+    const TabIcon = ({ color, focused, size }: { color: ColorValue; focused: boolean; size: number }) => (
+      <Ionicons name={focused ? on : off} size={size} color={color as string} />
+    );
+    return TabIcon;
+  };
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: p.primary,
+        tabBarInactiveTintColor: p.textFaint,
+        tabBarStyle: { backgroundColor: p.card, borderTopColor: p.border },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        sceneStyle: { backgroundColor: p.bg },
+      }}>
+      <Tabs.Screen name="index" options={{ title: t('tab.today'), tabBarIcon: icon('checkmark-circle', 'checkmark-circle-outline') }} />
+      <Tabs.Screen name="stats" options={{ title: t('tab.stats'), tabBarIcon: icon('stats-chart', 'stats-chart-outline') }} />
+      <Tabs.Screen name="social" options={{ title: t('tab.social'), tabBarIcon: icon('trophy', 'trophy-outline') }} />
+      <Tabs.Screen name="settings" options={{ title: t('tab.settings'), tabBarIcon: icon('settings', 'settings-outline') }} />
+    </Tabs>
+  );
+}

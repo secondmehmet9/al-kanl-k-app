@@ -71,9 +71,9 @@ describe('hatırlatıcı planı', () => {
     expect(plan.slots.length).toBe(60);
     expect(plan.slots.length).toBeLessThan(IOS_PENDING_LIMIT);
     expect(plan.dropped).toHaveLength(40);
-    // 10 görev × 7 gün ayrı saatlerde = 70 slot → bütçeye indirilir
-    const weekly = Array.from({ length: 10 }, (_, i) =>
-      makeTask({ id: `w${i}`, recurrenceType: 'weekdays', recurrenceDays: [1, 2, 3, 4, 5, 6], reminderTime: `1${i}:00`.slice(-5) })
+    // 12 görev × 6 gün ayrı saatlerde = 72 slot → bütçeye indirilir
+    const weekly = Array.from({ length: 12 }, (_, i) =>
+      makeTask({ id: `w${i}`, recurrenceType: 'weekdays', recurrenceDays: [1, 2, 3, 4, 5, 6], reminderTime: `${10 + i}:00` })
     );
     expect(buildReminderPlan(weekly, TODAY).slots.length).toBe(60);
   });
