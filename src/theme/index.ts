@@ -75,6 +75,12 @@ export function alpha(hex: string, a: number): string {
 }
 
 /** Skor rengi: düşük kırmızı → orta turuncu → yüksek yeşil. */
+/** Devam eden gün için: gün bitmeden kırmızı göstermeyelim (baskısız) — hedefe yaklaşınca yeşil. */
+export function liveScoreColor(p: Palette, score: number | null): string {
+  if (score === null) return p.textFaint;
+  return score >= 80 ? p.success : p.primary;
+}
+
 export function scoreColor(p: Palette, score: number | null): string {
   if (score === null) return p.textFaint;
   if (score >= 80) return p.success;

@@ -52,7 +52,11 @@ export function TaskRow({ task, date, today, editable }: { task: Task; date: str
   else if (missed) sub = t('task.missed');
   else if (isCount) sub = `${formatNum(value)} / ${formatNum(task.targetValue)} ${task.unit}`.trim();
   else sub = recurrenceLabel(task);
-  if (progress) sub += ` · ${t('task.periodProgress', { done: formatNum(Math.round(progress.done * 10) / 10), target: progress.target })}`;
+  if (progress && !skipped && !missed) {
+    const done = formatNum(Math.round(progress.done * 10) / 10);
+    sub = t(task.recurrenceType === 'monthly_n' ? 'task.periodMonth' : 'task.periodWeek', { done, target: progress.target });
+    if (isCount) sub += ` · ${formatNum(value)}/${formatNum(task.targetValue)} ${task.unit}`.trimEnd();
+  }
 
   return (
     <View
@@ -92,7 +96,7 @@ export function TaskRow({ task, date, today, editable }: { task: Task; date: str
                 {sub}
               </Txt>
               {streak > 0 ? (
-                <Txt v="small" color={p.warning} style={{ fontWeight: '700' }}>
+                <Txt v="small" color={p.warning} numberOfLines={1} style={{ fontWeight: '700', flexShrink: 0 }}>
                   🔥 {streak}
                 </Txt>
               ) : null}

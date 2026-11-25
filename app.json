@@ -40,7 +40,8 @@
           "color": "#6C5CE7",
           "enableRemoteNotifications": false
         }
-      ]
+      ],
+      "expo-font"
     ],
     "scheme": "aliskanlik",
     "experiments": {

@@ -15,7 +15,7 @@ import { currentStreak } from '@/domain/streaks';
 import { BACKFILL_DAYS } from '@/domain/types';
 import { t } from '@/i18n';
 import { formatLongDate, formatPct, weekdayShort } from '@/i18n/format';
-import { alpha, radius, scoreColor, space, useTheme } from '@/theme';
+import { alpha, liveScoreColor, radius, scoreColor, space, useTheme } from '@/theme';
 
 export default function TodayScreen() {
   const p = useTheme();
@@ -50,6 +50,7 @@ export default function TodayScreen() {
   );
 
   const hasAny = tasks.some((x) => !x.archived);
+  const mainColor = offset === 0 ? liveScoreColor(p, score) : scoreColor(p, score);
 
   return (
     <Screen
@@ -89,7 +90,7 @@ export default function TodayScreen() {
       <Row gap={6}>
         {days.map((d) => {
           const sel = d.off === offset;
-          const c = scoreColor(p, d.score);
+          const c = d.off === 0 ? liveScoreColor(p, d.score) : scoreColor(p, d.score);
           return (
             <Pressable
               key={d.key}
@@ -117,11 +118,11 @@ export default function TodayScreen() {
       </Row>
 
       {hasAny ? (
-        <Card style={{ backgroundColor: p.dark ? p.card : p.card }}>
+        <Card>
           <Row style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <View>
               <Txt v="label">{offset === 0 ? t('today.scoreToday') : t('today.scoreDay')}</Txt>
-              <Text testID="daily-score" style={{ fontSize: 46, fontWeight: '800', color: scoreColor(p, score), letterSpacing: -1 }}>
+              <Text testID="daily-score" style={{ fontSize: 46, fontWeight: '800', color: mainColor, letterSpacing: -1 }}>
                 {formatPct(score)}
               </Text>
             </View>
@@ -134,7 +135,7 @@ export default function TodayScreen() {
               <Txt v="small">{t('today.weekScore', { pct: formatPct(week) })}</Txt>
             </View>
           </Row>
-          <ProgressBar value={(score ?? 0) / 100} color={scoreColor(p, score)} height={10} />
+          <ProgressBar value={(score ?? 0) / 100} color={mainColor} height={10} />
           <Txt v="dim">
             {dueCount > 0 ? t('today.doneOf', { done: doneCount, total: dueCount }) : t('today.nothingDue')}
             {skippedCount > 0 ? ` · ${t('today.skippedN', { n: skippedCount })}` : ''}

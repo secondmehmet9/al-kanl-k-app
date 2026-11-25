@@ -43,7 +43,7 @@ export function Txt({
     body: { fontSize: 15, color: p.text },
     dim: { fontSize: 14, color: p.textDim },
     small: { fontSize: 12, color: p.textDim },
-    label: { fontSize: 12, fontWeight: '700', color: p.textFaint, letterSpacing: 0.6, textTransform: 'uppercase' },
+    label: { fontSize: 12, fontWeight: '700', color: p.textFaint, letterSpacing: 0.3 },
   };
   return (
     <Text numberOfLines={numberOfLines} style={[base[v], color ? { color } : null, center ? { textAlign: 'center' } : null, style]}>
@@ -79,7 +79,12 @@ export function Screen({
   return (
     <View style={{ flex: 1, backgroundColor: p.bg }}>
       {scroll ? (
-        <ScrollView contentContainerStyle={inner} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={inner}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
+          showsVerticalScrollIndicator={false}>
           {children}
         </ScrollView>
       ) : (

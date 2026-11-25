@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 
 import { Button, Card, Chip, EmptyState, Field, Row, Screen, Txt } from '@/components/ui';
@@ -21,7 +21,8 @@ export default function NewChallengeScreen() {
   const today = useToday();
   const session = useSession();
   const params = useLocalSearchParams<{ taskId?: string }>();
-  const tasks = useAppState((s) => s.tasks.filter((x) => !x.archived && !x.challengeId));
+  const allTasks = useAppState((s) => s.tasks);
+  const tasks = useMemo(() => allTasks.filter((x) => !x.archived && !x.challengeId), [allTasks]);
   const [taskId, setTaskId] = useState<string | null>(params.taskId ?? null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

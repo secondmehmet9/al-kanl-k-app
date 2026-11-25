@@ -2,6 +2,8 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { Button, Row, Screen, SectionTitle, Txt } from '@/components/ui';
 import { useToday } from '@/components/useToday';
 import { addTask, updateSettings, useAppState } from '@/data/store';
@@ -9,10 +11,12 @@ import { CATEGORIES } from '@/domain/categories';
 import { TaskTemplate, TEMPLATES } from '@/domain/templates';
 import { t, tDyn } from '@/i18n';
 import { formatNum, recurrenceLabel } from '@/i18n/format';
+import { ensureReminderPermission } from '@/notifications/scheduler';
 import { alpha, radius, space, useTheme } from '@/theme';
 
 export default function TemplatesScreen() {
   const p = useTheme();
+  const insets = useSafeAreaInsets();
   const today = useToday();
   const existing = useAppState((s) => s.tasks);
   const [picked, setPicked] = useState<string[]>([]);
@@ -44,6 +48,7 @@ export default function TemplatesScreen() {
       });
     }
     updateSettings({ onboarded: true });
+    if (TEMPLATES.some((x) => picked.includes(x.id) && x.reminderTime)) void ensureReminderPermission();
     router.back();
   };
 
@@ -51,7 +56,7 @@ export default function TemplatesScreen() {
     <Screen
       padTop={false}
       footer={
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: space.lg, backgroundColor: p.bg, borderTopWidth: 1, borderTopColor: p.border }}>
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: space.lg, paddingBottom: space.lg + insets.bottom, backgroundColor: p.bg, borderTopWidth: 1, borderTopColor: p.border }}>
           <Button testID="tpl-add" title={picked.length > 0 ? t('tpl.addN', { n: picked.length }) : t('tpl.pickSome')} disabled={picked.length === 0} onPress={addPicked} />
         </View>
       }>

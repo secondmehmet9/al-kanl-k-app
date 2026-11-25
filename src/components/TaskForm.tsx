@@ -282,24 +282,21 @@ export function TaskForm({
       </Card>
 
       <Card>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <View style={{ flex: 1 }}>
-            <Txt v="h3">{t('form.weight')}</Txt>
-            <Txt v="small">{t('form.weightHint')}</Txt>
-          </View>
-          <Row gap={6}>
-            {[1, 2, 3].map((w) => (
-              <Chip
-                key={w}
-                label={tDyn(`form.weight.${w}`)}
-                selected={d.weight === w}
-                onPress={() => {
-                  setWeightTouched(true);
-                  patch({ weight: w });
-                }}
-              />
-            ))}
-          </Row>
+        <Txt v="h3">{t('form.weight')}</Txt>
+        <Txt v="small">{t('form.weightHint')}</Txt>
+        <Row wrap>
+          {[1, 2, 3].map((w) => (
+            <Chip
+              key={w}
+              testID={`weight-${w}`}
+              label={tDyn(`form.weight.${w}`)}
+              selected={d.weight === w}
+              onPress={() => {
+                setWeightTouched(true);
+                patch({ weight: w });
+              }}
+            />
+          ))}
         </Row>
       </Card>
 

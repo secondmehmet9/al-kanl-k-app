@@ -98,7 +98,8 @@ export const tr = {
   // Görev satırı
   'task.skipped': 'Atlandı (dinlenme günü)',
   'task.missed': 'Yapılmadı',
-  'task.periodProgress': 'bu dönem {done}/{target}',
+  'task.periodWeek': 'Bu hafta {done}/{target}',
+  'task.periodMonth': 'Bu ay {done}/{target}',
   'task.actionSkip': 'Atla',
   'task.actionMissed': 'Yapılmadı',
   'task.actionClear': 'Sıfırla',
@@ -134,7 +135,7 @@ export const tr = {
   'form.reminder': 'Hatırlatıcı',
   'form.reminderHint': 'Telefonuna yerel bildirim gelir (internet gerekmez).',
   'form.weight': 'Önem',
-  'form.weightHint': 'Skorda bu görevin söz hakkı.',
+  'form.weightHint': 'Skorda bu görevin söz hakkı. Haftalık hedefler varsayılan “Önemli”, aylıklar “Çok önemli” gelir.',
   'form.weight.1': 'Normal',
   'form.weight.2': 'Önemli',
   'form.weight.3': 'Çok önemli',

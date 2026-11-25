@@ -41,14 +41,16 @@ export function Heatmap({ cells, color, today }: { cells: HeatCell[]; color?: st
         {weeks.map((week, wi) => {
           const first = week[0];
           const { m, d } = parts(first.date);
+          // Ay etiketi: ayın ilk haftasında; ilk sütunda yalnızca sonraki etiketle çakışmayacaksa.
           const showMonth = d <= 7;
+          const showFirst = wi === 0 && d > 7 && d <= 21;
           return (
             <View key={first.date} style={{ flex: 1, gap: 3 }}>
-              <View style={{ height: 13 }}>
-                {showMonth || wi === 0 ? (
-                  <Txt v="small" style={{ fontSize: 10, width: 40 }} numberOfLines={1}>
-                    {monthName(showMonth ? m : parts(week[6].date).m).slice(0, 3)}
-                  </Txt>
+              <View style={{ height: 13, zIndex: 1 }}>
+                {showMonth || showFirst ? (
+                  <View style={{ position: 'absolute', left: 0, top: 0, width: 44 }}>
+                    <Txt v="small" style={{ fontSize: 10 }}>{monthName(m).slice(0, 3)}</Txt>
+                  </View>
                 ) : null}
               </View>
               {week.map((cell) => (

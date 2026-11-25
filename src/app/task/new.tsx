@@ -6,6 +6,7 @@ import { Screen } from '@/components/ui';
 import { useToday } from '@/components/useToday';
 import { addTask } from '@/data/store';
 import { t } from '@/i18n';
+import { ensureReminderPermission } from '@/notifications/scheduler';
 
 export default function NewTaskScreen() {
   const today = useToday();
@@ -17,6 +18,7 @@ export default function NewTaskScreen() {
         submitLabel={t('form.create')}
         onSubmit={(draft) => {
           addTask(draft);
+          if (draft.reminderTime) void ensureReminderPermission();
           router.back();
         }}
       />

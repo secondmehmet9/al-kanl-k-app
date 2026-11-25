@@ -12,7 +12,7 @@ import { computeScore, dailyScore, heatmapDays, monthlyScore, overallScore, week
 import { currentStreak } from '@/domain/streaks';
 import { t, tDyn } from '@/i18n';
 import { formatDayMonth, formatPct, monthName } from '@/i18n/format';
-import { radius, scoreColor, space, useTheme } from '@/theme';
+import { liveScoreColor, radius, scoreColor, space, useTheme } from '@/theme';
 
 const WEEKS = 16;
 const TREND_WEEKS = 8;
@@ -54,32 +54,30 @@ export default function StatsScreen() {
     );
   }
 
-  const tiles: [string, number | null][] = [
-    [t('stats.today'), data.day],
-    [t('stats.week'), data.week],
-    [t('stats.month'), data.month],
-    [t('stats.overall'), data.overall],
+  const tiles: [string, number | null, string][] = [
+    [t('stats.today'), data.day, liveScoreColor(p, data.day)],
+    [t('stats.week'), data.week, scoreColor(p, data.week)],
+    [t('stats.month'), data.month, scoreColor(p, data.month)],
+    [t('stats.overall'), data.overall, scoreColor(p, data.overall)],
   ];
 
   return (
     <Screen>
-      <Row style={{ justifyContent: 'space-between' }}>
-        <Txt v="h1">{t('stats.title')}</Txt>
-        <Pressable accessibilityRole="button" accessibilityLabel={t('scoreInfo.title')} onPress={() => router.push('/score-info')} hitSlop={10}>
-          <Txt color={p.primary} style={{ fontWeight: '700' }}>
-            ⓘ {t('stats.how')}
-          </Txt>
-        </Pressable>
-      </Row>
+      <Txt v="h1">{t('stats.title')}</Txt>
+      <Pressable accessibilityRole="button" accessibilityLabel={t('scoreInfo.title')} onPress={() => router.push('/score-info')} hitSlop={10}>
+        <Txt color={p.primary} style={{ fontWeight: '700' }}>
+          {t('stats.how')} ›
+        </Txt>
+      </Pressable>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.md }}>
-        {tiles.map(([label, value]) => (
+        {tiles.map(([label, value, color]) => (
           <Card key={label} style={{ flexBasis: '47%', flexGrow: 1 }}>
             <Txt v="label">{label}</Txt>
-            <Text testID={`score-${label}`} style={{ fontSize: 34, fontWeight: '800', color: scoreColor(p, value), letterSpacing: -0.5 }}>
+            <Text testID={`score-${label}`} style={{ fontSize: 34, fontWeight: '800', color, letterSpacing: -0.5 }}>
               {formatPct(value)}
             </Text>
-            <ProgressBar value={(value ?? 0) / 100} color={scoreColor(p, value)} height={6} />
+            <ProgressBar value={(value ?? 0) / 100} color={color} height={6} />
           </Card>
         ))}
       </View>

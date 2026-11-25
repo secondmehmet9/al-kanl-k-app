@@ -191,7 +191,7 @@ export default function SettingsScreen() {
 
       <SectionTitle>{t('settings.about')}</SectionTitle>
       <Card>
-        <Button small kind="soft" icon="ⓘ" title={t('scoreInfo.title')} onPress={() => router.push('/score-info')} />
+        <Button small kind="soft" title={t('scoreInfo.title')} onPress={() => router.push('/score-info')} />
         <Txt v="small">
           {t('settings.version', { v: Constants.expoConfig?.version ?? '1.0.0' })} · {Platform.OS} · {socialEnabled ? t('settings.socialOn') : t('settings.socialOff')}
         </Txt>

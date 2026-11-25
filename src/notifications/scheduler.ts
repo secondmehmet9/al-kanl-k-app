@@ -5,6 +5,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { getState } from '@/data/store';
 import { todayKey } from '@/domain/dates';
 import type { Task } from '@/domain/types';
 import { t } from '@/i18n';
@@ -58,6 +59,16 @@ export async function requestPermission(): Promise<PermissionState> {
   } catch {
     return 'unsupported';
   }
+}
+
+/**
+ * Hatırlatıcılı bir görev kaydedilince çağrılır: izin hiç sorulmadıysa iOS izin penceresini açar,
+ * sonra hatırlatıcıları yeniden kurar. (İzin reddedildiyse tekrar sormaz; Ayarlar'da uyarı görünür.)
+ */
+export async function ensureReminderPermission(): Promise<void> {
+  if (!supported) return;
+  if ((await getPermissionState()) === 'undetermined') await requestPermission();
+  await rescheduleAll(getState().tasks, getState().settings.notificationsEnabled);
 }
 
 function toExpoTrigger(tr: ReminderTrigger): Notifications.NotificationTriggerInput {

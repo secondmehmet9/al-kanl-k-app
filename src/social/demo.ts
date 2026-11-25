@@ -3,10 +3,10 @@ import { addDays } from '@/domain/dates';
 import type { ChallengeDetail, ChallengeLog } from './types';
 
 /** Sosyal katman bağlanmadan arayüzü göstermek için ÖRNEK veri (sunucuya gitmez, kaydedilmez). */
-export function demoChallenge(today: string): ChallengeDetail {
+export function demoChallenge(today: string, myName: string): ChallengeDetail {
   const start = addDays(today, -9);
   const members = [
-    { userId: 'me', displayName: 'Sen', role: 'owner' as const },
+    { userId: 'me', displayName: myName, role: 'owner' as const },
     { userId: 'u2', displayName: 'Ahmet', role: 'member' as const },
     { userId: 'u3', displayName: 'Elif', role: 'member' as const },
     { userId: 'u4', displayName: 'Marko', role: 'member' as const },

@@ -6,6 +6,7 @@ import { EmptyState, Screen } from '@/components/ui';
 import { useToday } from '@/components/useToday';
 import { updateTask, useAppState } from '@/data/store';
 import { t } from '@/i18n';
+import { ensureReminderPermission } from '@/notifications/scheduler';
 
 export default function EditTaskScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -27,6 +28,7 @@ export default function EditTaskScreen() {
         submitLabel={t('common.save')}
         onSubmit={(draft) => {
           updateTask(task.id, draft);
+          if (draft.reminderTime) void ensureReminderPermission();
           router.back();
         }}
       />

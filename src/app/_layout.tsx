@@ -56,13 +56,13 @@ export default function RootLayout() {
               contentStyle: { backgroundColor: p.bg },
             }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="task/new" options={{ title: t('form.newTitle'), presentation: 'modal' }} />
+            <Stack.Screen name="task/new" options={{ title: t('form.newTitle') }} />
             <Stack.Screen name="task/[id]" options={{ title: t('detail.title') }} />
-            <Stack.Screen name="task/edit/[id]" options={{ title: t('form.editTitle'), presentation: 'modal' }} />
-            <Stack.Screen name="templates" options={{ title: t('tpl.title'), presentation: 'modal' }} />
-            <Stack.Screen name="score-info" options={{ title: t('scoreInfo.title'), presentation: 'modal' }} />
+            <Stack.Screen name="task/edit/[id]" options={{ title: t('form.editTitle') }} />
+            <Stack.Screen name="templates" options={{ title: t('tpl.title') }} />
+            <Stack.Screen name="score-info" options={{ title: t('scoreInfo.title') }} />
             <Stack.Screen name="social/demo" options={{ title: t('social.demoTitle') }} />
-            <Stack.Screen name="social/new-challenge" options={{ title: t('social.newChallenge'), presentation: 'modal' }} />
+            <Stack.Screen name="social/new-challenge" options={{ title: t('social.newChallenge') }} />
             <Stack.Screen name="social/challenge/[id]" options={{ title: t('social.challenge') }} />
           </Stack>
         )}

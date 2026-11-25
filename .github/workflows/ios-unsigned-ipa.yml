@@ -1,0 +1,175 @@
+# İmzasız iOS .ipa üretir (SideStore / AltStore ile kurulmak üzere).
+#
+# Neden imzasız?  Ücretsiz Apple ID ile App Store/TestFlight yok. SideStore, .ipa'yı telefonda
+# senin Apple ID'nle KENDİSİ imzalar. Bu yüzden burada sertifika / provisioning profile gerekmez.
+#
+# Nasıl çalıştırılır?
+#   - GitHub → Actions → "iOS imzasız IPA" → "Run workflow"   (elle)
+#   - ya da `v1.0.0` gibi bir etiket (tag) push edilince otomatik
+#
+# Çıktı nereden indirilir?
+#   - Repo → Releases → en üstteki sürüm → Aliskanlik-<no>.ipa   (iPhone Safari'den doğrudan iner)
+#   - Yedek: Actions → ilgili çalışma → Artifacts (zip içinde .ipa)
+#
+# Sosyal katman: repo Settings → Secrets and variables → Actions → Variables altına
+# EXPO_PUBLIC_SUPABASE_URL ve EXPO_PUBLIC_SUPABASE_ANON_KEY eklenirse açılır; yoksa kapalı derlenir.
+
+name: iOS imzasız IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Releases sayfasına .ipa yayınla (iPhone'dan kolay indirme)"
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: ios-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write # Release oluşturmak için
+
+env:
+  EXPO_NO_TELEMETRY: "1"
+  EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
+  EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+
+jobs:
+  # Ucuz Linux makinesinde hızlı kalite kontrolü: hata varsa pahalı macOS dakikası harcanmaz.
+  kontrol:
+    name: Tip + lint + testler
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx expo lint
+      - run: npx jest --ci
+      - run: npm run test:sql
+
+  ipa:
+    name: İmzasız IPA derle
+    needs: kontrol
+    # Expo SDK 58 → Xcode 26.4+ gerekir; macos-26 imajında varsayılan Xcode 26.x.
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      APP_NAME: Aliskanlik
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Xcode sürümü
+        run: xcodebuild -version
+
+      - name: Bağımlılıklar (npm ci)
+        run: npm ci
+
+      - name: Sürüm numaraları
+        run: |
+          # CFBundleVersion = çalışma numarası → her derleme bir öncekinin üzerine kurulabilir.
+          node -e "
+            const fs = require('fs');
+            const j = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+            j.expo.ios = j.expo.ios || {};
+            j.expo.ios.buildNumber = String(process.env.GITHUB_RUN_NUMBER);
+            fs.writeFileSync('app.json', JSON.stringify(j, null, 2));
+            console.log('version', j.expo.version, 'build', j.expo.ios.buildNumber);
+          "
+
+      - name: Native iOS projesini üret (expo prebuild)
+        run: npx expo prebuild --platform ios --clean --no-install
+
+      - name: CocoaPods önbelleği
+        uses: actions/cache@v6
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+          key: pods-${{ runner.os }}-${{ hashFiles('package-lock.json', 'app.json') }}
+          restore-keys: |
+            pods-${{ runner.os }}-
+
+      - name: pod install
+        working-directory: ios
+        run: pod install
+
+      - name: Arşivle (imzasız)
+        run: |
+          set -o pipefail
+          WORKSPACE=$(ls -d ios/*.xcworkspace | head -n 1)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          echo "workspace=$WORKSPACE scheme=$SCHEME"
+          xcodebuild archive \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
+            2>&1 | tee "$RUNNER_TEMP/xcodebuild.log" | (command -v xcbeautify >/dev/null && xcbeautify --quiet || cat)
+
+      - name: .app → Payload → .ipa
+        id: ipa
+        run: |
+          set -euo pipefail
+          APP=$(ls -d "$RUNNER_TEMP"/App.xcarchive/Products/Applications/*.app | head -n 1)
+          echo "app=$APP"
+          # Sağlamlık kontrolleri: JS paketi gömülü mü, kimlik doğru mu, push yetkisi sızmamış mı?
+          test -f "$APP/main.jsbundle" || { echo "::error::main.jsbundle yok — uygulama açılışta çöker"; exit 1; }
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$APP/Info.plist"
+          rm -rf Payload && mkdir Payload
+          cp -R "$APP" Payload/
+          IPA="${APP_NAME}-${GITHUB_RUN_NUMBER}.ipa"
+          zip -qry "$IPA" Payload
+          ls -lh "$IPA"
+          echo "file=$IPA" >> "$GITHUB_OUTPUT"
+
+      - name: IPA'yı artifact olarak yükle
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.APP_NAME }}-ipa-${{ github.run_number }}
+          path: ${{ steps.ipa.outputs.file }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Release'e yayınla (iPhone'dan doğrudan indirme)
+        if: github.event_name == 'push' || inputs.release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="build-${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" "${{ steps.ipa.outputs.file }}" \
+            --target "$GITHUB_SHA" \
+            --title "Alışkanlık — derleme ${GITHUB_RUN_NUMBER}" \
+            --notes "İmzasız IPA. iPhone'da bu sayfadaki .ipa dosyasına dokun → indir → SideStore ile aç. Adımlar: docs/KURULUM.md"
+
+      - name: Hata olursa derleme günlüğünü sakla
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xcodebuild-log-${{ github.run_number }}
+          path: ${{ runner.temp }}/xcodebuild.log
+          if-no-files-found: ignore
+          retention-days: 7

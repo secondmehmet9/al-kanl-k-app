@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router/js-tabs';
 import React from 'react';
-import type { ColorValue } from 'react-native';
+import { ColorValue, Platform } from 'react-native';
 
 import { t } from '@/i18n';
 import { useTheme } from '@/theme';
@@ -22,8 +22,9 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: p.primary,
         tabBarInactiveTintColor: p.textFaint,
-        tabBarStyle: { backgroundColor: p.card, borderTopColor: p.border },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        // Web önizlemede varsayılan çubuk yüksekliği etiketi kırpıyor; iOS'ta güvenli alan otomatik eklenir.
+        tabBarStyle: { backgroundColor: p.card, borderTopColor: p.border, ...(Platform.OS === 'web' ? { height: 58 } : null) },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
         sceneStyle: { backgroundColor: p.bg },
       }}>
       <Tabs.Screen name="index" options={{ title: t('tab.today'), tabBarIcon: icon('checkmark-circle', 'checkmark-circle-outline') }} />
