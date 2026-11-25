@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "Alışkanlık",
+    "slug": "aliskanlik",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.mehmetdonmez.aliskanlik",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDevelopmentRegion": "tr"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.mehmetdonmez.aliskanlik"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "color": "#6C5CE7",
+          "enableRemoteNotifications": false
+        }
+      ]
+    ],
+    "scheme": "aliskanlik",
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
