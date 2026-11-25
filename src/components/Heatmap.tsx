@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { parts } from '@/domain/dates';
 import { monthName, weekdayShort } from '@/i18n/format';
-import { alpha, useTheme } from '@/theme';
+import { heatColor, useTheme } from '@/theme';
 
 import { Txt } from './ui';
 
@@ -14,18 +14,15 @@ export interface HeatCell {
   future: boolean;
 }
 
-/** GitHub tarzı ısı haritası: sütun = hafta (Pzt üstte), renk yoğunluğu = günün skoru. */
-export function Heatmap({ cells, color, today }: { cells: HeatCell[]; color?: string; today: string }) {
+/** GitHub tarzı ısı haritası: sütun = hafta (Pzt üstte), 5 kademeli turuncu ölçek = günün skoru. */
+export function Heatmap({ cells, today }: { cells: HeatCell[]; today: string }) {
   const p = useTheme();
-  const c = color ?? p.primary;
   const weeks: HeatCell[][] = [];
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
 
   const fill = (cell: HeatCell) => {
     if (cell.future) return 'transparent';
-    if (cell.score === null) return p.track;
-    if (cell.score <= 0) return alpha(p.danger, p.dark ? 0.28 : 0.16);
-    return alpha(c, 0.25 + 0.75 * Math.min(1, cell.score / 100));
+    return heatColor(p, cell.score ?? 0);
   };
 
   return (
@@ -62,7 +59,7 @@ export function Heatmap({ cells, color, today }: { cells: HeatCell[]; color?: st
                     borderRadius: 4,
                     backgroundColor: fill(cell),
                     borderWidth: cell.date === today ? 1.5 : cell.future ? 1 : 0,
-                    borderColor: cell.date === today ? p.text : p.track,
+                    borderColor: cell.date === today ? p.text : p.border,
                   }}
                 />
               ))}
@@ -72,9 +69,8 @@ export function Heatmap({ cells, color, today }: { cells: HeatCell[]; color?: st
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, justifyContent: 'flex-end' }}>
         <Txt v="small" style={{ fontSize: 10 }}>%0</Txt>
-        <View style={{ width: 11, height: 11, borderRadius: 3, backgroundColor: alpha(p.danger, p.dark ? 0.28 : 0.16) }} />
-        {[0.25, 0.5, 0.75, 1].map((a) => (
-          <View key={a} style={{ width: 11, height: 11, borderRadius: 3, backgroundColor: alpha(c, 0.25 + 0.75 * a) }} />
+        {p.heat.map((h) => (
+          <View key={h} style={{ width: 11, height: 11, borderRadius: 3, backgroundColor: h }} />
         ))}
         <Txt v="small" style={{ fontSize: 10 }}>%100</Txt>
       </View>

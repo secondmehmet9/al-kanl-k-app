@@ -27,7 +27,7 @@ tasks = [
     task(1, 'Erken kalk', '⏰', '#F59E0B', 'sabah', reminderTime='06:30'),
     task(2, 'Su iç', '💧', '#3B82F6', 'saglik', kind='count', targetValue=8, unit='bardak'),
     task(3, 'Kitap oku', '📚', '#06B6D4', 'ogrenme', kind='count', targetValue=20, unit='sayfa', reminderTime='21:30'),
-    task(4, 'Derin çalışma', '🧠', '#6C5CE7', 'is', kind='count', targetValue=2, unit='saat',
+    task(4, 'Derin çalışma', '🧠', '#7B61FF', 'is', kind='count', targetValue=2, unit='saat',
          recurrenceType='weekdays', recurrenceDays=[1, 2, 3, 4, 5]),
     task(5, 'Meditasyon', '🧘', '#14B8A6', 'zihin'),
     task(6, 'Spor yap', '🏋️', '#10B981', 'spor', recurrenceType='weekly_n', periodTargetN=3, weight=2),

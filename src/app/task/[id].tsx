@@ -15,7 +15,7 @@ import { bestStreak, currentStreak, totalCompletions } from '@/domain/streaks';
 import { t, tDyn } from '@/i18n';
 import { formatDayMonth, formatNum, formatPct, formatShortDate, recurrenceLabel } from '@/i18n/format';
 import { socialEnabled } from '@/social/config';
-import { alpha, scoreColor, space, useTheme } from '@/theme';
+import { alpha, scoreTone, space, streakColor, useTheme } from '@/theme';
 
 const WEEKS = 16;
 
@@ -58,10 +58,11 @@ export default function TaskDetailScreen() {
   const allPct = pct(taskWindowRatio(task, logs, { start: task.startDate, end: today }, today).ratio);
   const progress = periodProgress(task, logs, today);
   const todayLog = logs?.[today];
+  const streakNow = currentStreak(task, logs, today);
   const stats: [string, string, string?][] = [
-    [t('detail.streak'), `🔥 ${currentStreak(task, logs, today)}`],
-    [t('detail.bestStreak'), `🏆 ${bestStreak(task, logs, today)}`],
-    [t('detail.total'), `✓ ${totalCompletions(task, logs)}`],
+    [t('detail.streak'), `🔥 ${streakNow}`, streakColor(p, streakNow).text],
+    [t('detail.bestStreak'), `🏆 ${bestStreak(task, logs, today)}`, p.goldText],
+    [t('detail.total'), `✓ ${totalCompletions(task, logs)}`, p.successText],
   ];
   const scores: [string, number | null][] = [
     [t('stats.week'), weekPct],
@@ -92,15 +93,15 @@ export default function TaskDetailScreen() {
             </Txt>
           </View>
         </Row>
-        {paused ? <Txt color={p.warning} style={{ fontWeight: '700' }}>⏸ {t('detail.pausedNote')}</Txt> : null}
-        {task.archived ? <Txt color={p.textFaint} style={{ fontWeight: '700' }}>📦 {t('detail.archivedNote')}</Txt> : null}
-        {task.challengeId ? <Txt color={p.primary} style={{ fontWeight: '700' }}>🏆 {t('detail.challengeNote')}</Txt> : null}
+        {paused ? <Txt color={p.textDim} style={{ fontWeight: '700' }}>⏸ {t('detail.pausedNote')}</Txt> : null}
+        {task.archived ? <Txt color={p.textDim} style={{ fontWeight: '700' }}>📦 {t('detail.archivedNote')}</Txt> : null}
+        {task.challengeId ? <Txt color={p.socialText} style={{ fontWeight: '700' }}>🏆 {t('detail.challengeNote')}</Txt> : null}
       </Card>
 
       <Row>
-        {stats.map(([label, value]) => (
+        {stats.map(([label, value, color]) => (
           <Card key={label} style={{ flex: 1, alignItems: 'center', padding: space.md }}>
-            <Txt v="h2">{value}</Txt>
+            <Txt v="h2" color={color}>{value}</Txt>
             <Txt v="small" center>{label}</Txt>
           </Card>
         ))}
@@ -108,7 +109,7 @@ export default function TaskDetailScreen() {
       <Row>
         {scores.map(([label, value]) => (
           <Card key={label} style={{ flex: 1, alignItems: 'center', padding: space.md }}>
-            <Txt v="h2" color={scoreColor(p, value)}>{formatPct(value)}</Txt>
+            <Txt v="h2" color={scoreTone(p, value).text}>{formatPct(value)}</Txt>
             <Txt v="small" center>{label}</Txt>
           </Card>
         ))}
@@ -118,11 +119,11 @@ export default function TaskDetailScreen() {
         <Card>
           <Row style={{ justifyContent: 'space-between' }}>
             <Txt v="h3">{task.recurrenceType === 'weekly_n' ? t('detail.thisWeek') : t('detail.thisMonth')}</Txt>
-            <Txt v="h3" color={progress.met ? p.success : progress.onTrack ? p.success : p.warning}>
+            <Txt v="h3" color={progress.met ? p.successText : p.primaryText}>
               {formatNum(Math.round(progress.done * 10) / 10)} / {progress.target}
             </Txt>
           </Row>
-          <ProgressBar value={progress.done / progress.target} color={progress.onTrack ? p.success : p.warning} />
+          <ProgressBar value={progress.done / progress.target} color={progress.met ? p.success : p.primary} />
           <Txt v="small">
             {formatDayMonth(progress.period.start)} – {formatDayMonth(progress.period.end)} ·{' '}
             {progress.met ? t('detail.periodMet') : progress.onTrack ? t('detail.onTrack') : t('detail.behind')}
@@ -159,7 +160,7 @@ export default function TaskDetailScreen() {
 
       <SectionTitle>{t('detail.heatmap', { n: WEEKS })}</SectionTitle>
       <Card>
-        <Heatmap cells={cells} color={task.color} today={today} />
+        <Heatmap cells={cells} today={today} />
       </Card>
 
       <SectionTitle>{t('detail.actions')}</SectionTitle>

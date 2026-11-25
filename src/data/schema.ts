@@ -33,7 +33,7 @@ export const MIGRATIONS: string[] = [
     id TEXT PRIMARY KEY NOT NULL,
     title TEXT NOT NULL,
     icon TEXT NOT NULL DEFAULT '✅',
-    color TEXT NOT NULL DEFAULT '#6C5CE7',
+    color TEXT NOT NULL DEFAULT '#FC5200',
     category TEXT NOT NULL DEFAULT 'kisisel',
     kind TEXT NOT NULL DEFAULT 'boolean',
     target_value REAL NOT NULL DEFAULT 1,

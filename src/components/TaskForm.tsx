@@ -11,7 +11,7 @@ import { parseTime } from '@/notifications/plan';
 import { socialEnabled } from '@/social/config';
 import { alpha, space, useTheme } from '@/theme';
 
-import { Button, Card, Chip, Field, Row, Stepper, Txt } from './ui';
+import { Button, Card, Chip, Field, Row, Stepper, switchColors, Txt } from './ui';
 
 const REC_TYPES: RecurrenceType[] = ['daily', 'weekdays', 'weekly_n', 'monthly_n', 'monthly_day'];
 const TIME_PRESETS = ['07:00', '09:00', '12:30', '18:00', '21:00'];
@@ -212,8 +212,8 @@ export function TaskForm({
                   accessibilityState={{ selected: on }}
                   accessibilityLabel={weekdayShort(day)}
                   onPress={() => toggleDay(day)}
-                  style={{ flex: 1, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? p.primary : p.cardAlt }}>
-                  <Text style={{ color: on ? p.onPrimary : p.textDim, fontWeight: '700', fontSize: 13 }}>{weekdayShort(day)}</Text>
+                  style={{ flex: 1, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? p.primarySoft : p.cardAlt, borderWidth: 1.5, borderColor: on ? p.primary : 'transparent' }}>
+                  <Text style={{ color: on ? p.text : p.textDim, fontWeight: '700', fontSize: 13 }}>{weekdayShort(day)}</Text>
                 </Pressable>
               );
             })}
@@ -243,8 +243,8 @@ export function TaskForm({
                     accessibilityState={{ selected: on }}
                     accessibilityLabel={String(day)}
                     onPress={() => toggleDay(day)}
-                    style={{ width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? p.primary : p.cardAlt }}>
-                    <Text style={{ color: on ? p.onPrimary : p.textDim, fontWeight: '600', fontSize: 13 }}>{day}</Text>
+                    style={{ width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? p.primarySoft : p.cardAlt, borderWidth: 1.5, borderColor: on ? p.primary : 'transparent' }}>
+                    <Text style={{ color: on ? p.text : p.textDim, fontWeight: on ? '700' : '600', fontSize: 13 }}>{day}</Text>
                   </Pressable>
                 );
               })}
@@ -266,7 +266,7 @@ export function TaskForm({
             accessibilityLabel={t('form.reminder')}
             value={d.reminderTime !== null}
             onValueChange={(on) => patch({ reminderTime: on ? timeText : null })}
-            trackColor={{ true: p.primary, false: p.track }}
+            {...switchColors(p)}
           />
         </Row>
         {d.reminderTime !== null ? (
@@ -325,7 +325,7 @@ export function TaskForm({
       ) : null}
 
       {error ? (
-        <Txt color={p.danger} style={{ fontWeight: '600' }}>
+        <Txt color={p.missedText} style={{ fontWeight: '600' }}>
           {error}
         </Txt>
       ) : null}

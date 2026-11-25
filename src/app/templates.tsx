@@ -87,7 +87,7 @@ export default function TemplatesScreen() {
                     borderRadius: radius.lg,
                     backgroundColor: p.card,
                     borderWidth: 1.5,
-                    borderColor: on ? tpl.color : p.border,
+                    borderColor: on ? p.primary : p.border,
                     opacity: added ? 0.5 : 1,
                   }}>
                   <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: alpha(tpl.color, p.dark ? 0.28 : 0.15), alignItems: 'center', justifyContent: 'center' }}>
@@ -103,8 +103,8 @@ export default function TemplatesScreen() {
                       </Txt>
                     </Row>
                   </View>
-                  <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: on || added ? tpl.color : p.border, backgroundColor: on || added ? tpl.color : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: '#fff', fontWeight: '800' }}>{on || added ? '✓' : ''}</Text>
+                  <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: added ? p.success : on ? p.primary : p.border, backgroundColor: added ? p.success : on ? p.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ color: added ? p.onSuccess : p.onPrimary, fontSize: 16, fontWeight: '800' }}>{on || added ? '✓' : ''}</Text>
                   </View>
                 </Pressable>
               );

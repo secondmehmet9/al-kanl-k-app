@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -16,7 +17,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { t } from '@/i18n';
-import { alpha, radius, space, useTheme } from '@/theme';
+import { alpha, Palette, radius, space, streakColor, useTheme } from '@/theme';
 
 type TxtVariant = 'h1' | 'h2' | 'h3' | 'body' | 'dim' | 'small' | 'label';
 
@@ -43,7 +44,7 @@ export function Txt({
     body: { fontSize: 15, color: p.text },
     dim: { fontSize: 14, color: p.textDim },
     small: { fontSize: 12, color: p.textDim },
-    label: { fontSize: 12, fontWeight: '700', color: p.textFaint, letterSpacing: 0.3 },
+    label: { fontSize: 12, fontWeight: '700', color: p.textDim, letterSpacing: 0.3 },
   };
   return (
     <Text numberOfLines={numberOfLines} style={[base[v], color ? { color } : null, center ? { textAlign: 'center' } : null, style]}>
@@ -137,8 +138,12 @@ export function Button({
   testID?: string;
 }) {
   const p = useTheme();
-  const bg = { primary: p.primary, soft: p.primarySoft, ghost: 'transparent', danger: alpha(p.danger, 0.12) }[kind];
-  const fg = { primary: p.onPrimary, soft: p.primary, ghost: p.textDim, danger: p.danger }[kind];
+  // Dolu turuncu + beyaz metin yalnızca büyük/kalın (≥ 19px 800) iken AA sağlar → küçük birincil buton
+  // açık turuncu zemin + turuncu çerçeve + koyu turuncu metinle çizilir.
+  const solid = kind === 'primary' && !small;
+  const bg = { primary: solid ? p.primary : p.primarySoft, soft: p.primarySoft, ghost: 'transparent', danger: p.missedSoft }[kind];
+  const fg = { primary: solid ? p.onPrimary : p.primaryText, soft: p.primaryText, ghost: p.textDim, danger: p.missedText }[kind];
+  const outline = kind === 'ghost' ? p.border : kind === 'primary' && small ? p.primary : null;
   return (
     <Pressable
       testID={testID}
@@ -148,23 +153,23 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => [
         {
-          backgroundColor: bg,
+          backgroundColor: solid && pressed && !disabled ? p.primaryPressed : bg,
           borderRadius: radius.md,
-          paddingVertical: small ? 8 : 14,
+          paddingVertical: small ? 8 : solid ? 12 : 14,
           paddingHorizontal: small ? 12 : 18,
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'row',
           gap: 6,
-          opacity: disabled ? 0.45 : pressed ? 0.8 : 1,
-          borderWidth: kind === 'ghost' ? 1 : 0,
-          borderColor: p.border,
+          opacity: disabled ? 0.45 : pressed && !solid ? 0.8 : 1,
+          borderWidth: outline ? (kind === 'ghost' ? 1 : 1.5) : 0,
+          borderColor: outline ?? 'transparent',
         },
         style,
       ]}>
       {loading ? <ActivityIndicator color={fg} size="small" /> : null}
       {icon && !loading ? <Text style={{ fontSize: small ? 13 : 16 }}>{icon}</Text> : null}
-      <Text style={{ color: fg, fontWeight: '700', fontSize: small ? 13 : 16 }}>{title}</Text>
+      <Text style={{ color: fg, fontWeight: solid ? '800' : '700', fontSize: small ? 13 : solid ? 19 : 16 }}>{title}</Text>
     </Pressable>
   );
 }
@@ -206,7 +211,7 @@ export function Chip({
         opacity: pressed ? 0.8 : 1,
       })}>
       {icon ? <Text style={{ fontSize: 14 }}>{icon}</Text> : null}
-      <Text style={{ color: selected ? (p.dark ? p.text : c) : p.textDim, fontWeight: selected ? '700' : '500', fontSize: 14 }}>{label}</Text>
+      <Text style={{ color: selected ? p.text : p.textDim, fontWeight: selected ? '700' : '500', fontSize: 14 }}>{label}</Text>
     </Pressable>
   );
 }
@@ -249,6 +254,34 @@ export function ProgressBar({ value, color, height = 8 }: { value: number; color
   return (
     <View style={{ height, borderRadius: height, backgroundColor: p.track, overflow: 'hidden' }}>
       <View style={{ width: `${pct}%`, height, borderRadius: height, backgroundColor: color ?? p.primary }} />
+    </View>
+  );
+}
+
+/** Switch renkleri: açıkken turuncu ray + beyaz topuz (react-native-web'in varsayılan yeşil topuzunu da ezer). */
+export function switchColors(p: Palette) {
+  return {
+    trackColor: { true: p.primary, false: p.track },
+    thumbColor: p.onPrimary,
+    ...(Platform.OS === 'web' ? { activeThumbColor: p.onPrimary } : null),
+  };
+}
+
+/** Seri göstergesi: alev ikonu seri büyüdükçe turuncudan altına geçer (bkz. streakColor). */
+export function Streak({ n, label, pill, size = 12 }: { n: number; label?: string; pill?: boolean; size?: number }) {
+  const p = useTheme();
+  const c = streakColor(p, n);
+  return (
+    <View
+      testID={`streak-${n}`}
+      style={[
+        { flexDirection: 'row', alignItems: 'center', gap: 3, flexShrink: 0 },
+        pill ? { backgroundColor: alpha(c.flame, 0.16), paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill } : null,
+      ]}>
+      <Ionicons name="flame" size={size + 2} color={c.flame} />
+      <Text numberOfLines={1} style={{ color: c.text, fontSize: size, fontWeight: '700' }}>
+        {label ?? n}
+      </Text>
     </View>
   );
 }

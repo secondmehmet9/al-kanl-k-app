@@ -20,9 +20,10 @@ export const CATEGORIES: Category[] = [
 
 export const categoryById = (id: string): Category => CATEGORIES.find((c) => c.id === id) ?? CATEGORIES[4];
 
+/** Kullanıcının görev için seçebildiği 12'lik doygun palet (UI kromu tema token'larıyla kalır). */
 export const TASK_COLORS = [
-  '#6C5CE7', '#3B82F6', '#06B6D4', '#10B981', '#84CC16',
-  '#F59E0B', '#F97316', '#EF4444', '#EC4899', '#8B5CF6',
+  '#FC5200', '#F59E0B', '#FFC53D', '#84CC16', '#10B981', '#14B8A6',
+  '#06B6D4', '#3B82F6', '#7B61FF', '#A855F7', '#EC4899', '#EF4444',
 ];
 
 export const TASK_ICONS = [

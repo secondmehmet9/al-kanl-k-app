@@ -4,7 +4,7 @@ import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Platform, Switch, View } from 'react-native';
 
-import { Button, Card, Chip, confirmAction, Field, notify, Row, Screen, SectionTitle, Txt } from '@/components/ui';
+import { Button, Card, Chip, confirmAction, Field, notify, Row, Screen, SectionTitle, switchColors, Txt } from '@/components/ui';
 import { exportSnapshot, importSnapshot, setArchived, updateSettings, useAppState, wipeAll } from '@/data/store';
 import type { ThemePref } from '@/domain/types';
 import { t, tDyn } from '@/i18n';
@@ -77,21 +77,21 @@ export default function SettingsScreen() {
             accessibilityLabel={t('settings.reminders')}
             value={settings.notificationsEnabled}
             onValueChange={(v) => updateSettings({ notificationsEnabled: v })}
-            trackColor={{ true: p.primary, false: p.track }}
+            {...switchColors(p)}
           />
         </Row>
         {perm === 'unsupported' ? (
           <Txt v="small">{t('settings.notifUnsupported')}</Txt>
         ) : (
           <>
-            <Txt v="small" color={perm === 'granted' ? p.success : p.warning}>
+            <Txt v="small" color={perm === 'granted' ? p.successText : p.primaryText}>
               {tDyn(`settings.perm.${perm}`)}
             </Txt>
             <Txt v="small">
               {t('settings.notifCount', { tasks: withReminder, scheduled: result?.scheduled ?? 0, limit: IOS_PENDING_LIMIT })}
             </Txt>
             {result && result.dropped.length > 0 ? (
-              <Txt v="small" color={p.danger}>
+              <Txt v="small" color={p.missedText}>
                 {t('settings.notifDropped', { n: result.dropped.length })}
               </Txt>
             ) : null}

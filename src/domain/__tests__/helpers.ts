@@ -8,7 +8,7 @@ export function makeTask(over: Partial<Task> = {}): Task {
     id: over.id ?? `t${seq}`,
     title: `Görev ${seq}`,
     icon: '✅',
-    color: '#6C5CE7',
+    color: '#FC5200',
     category: 'kisisel',
     kind: 'boolean',
     targetValue: 1,

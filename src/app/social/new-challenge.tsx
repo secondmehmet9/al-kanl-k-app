@@ -76,7 +76,7 @@ export default function NewChallengeScreen() {
               accessibilityState={{ selected: on }}
               accessibilityLabel={x.title}
               onPress={() => setTaskId(x.id)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.sm, borderRadius: radius.md, borderWidth: 1.5, borderColor: on ? p.primary : 'transparent', backgroundColor: on ? p.primarySoft : p.cardAlt }}>
+              style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.sm, borderRadius: radius.md, borderWidth: 1.5, borderColor: on ? p.social : 'transparent', backgroundColor: on ? p.socialSoft : p.cardAlt }}>
               <Text style={{ fontSize: 20 }}>{x.icon}</Text>
               <Txt style={{ flex: 1, fontWeight: '600' }} numberOfLines={1}>
                 {x.title}
@@ -100,7 +100,7 @@ export default function NewChallengeScreen() {
         </Row>
         {parseUserDate(startText) ? <Txt v="small">{t('social.endsOn', { date: formatShortDate(addDays(parseUserDate(startText)!, days - 1)) })}</Txt> : null}
       </Card>
-      {err ? <Txt color={p.danger}>{err}</Txt> : null}
+      {err ? <Txt color={p.missedText}>{err}</Txt> : null}
       <Button title={t('social.createChallenge')} icon="🏆" loading={busy} disabled={!task} onPress={() => void submit()} />
     </Screen>
   );

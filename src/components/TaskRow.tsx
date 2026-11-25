@@ -13,12 +13,18 @@ import { t } from '@/i18n';
 import { formatNum, recurrenceLabel } from '@/i18n/format';
 import { alpha, radius, space, useTheme } from '@/theme';
 
-import { Chip, notify, ProgressBar, Row, Txt } from './ui';
+import { DonePop } from './DonePop';
+import { Chip, notify, ProgressBar, Row, Streak, Txt } from './ui';
+
+const HAPTICS = Platform.OS === 'ios' || Platform.OS === 'android';
 
 function tap() {
-  if (Platform.OS === 'ios' || Platform.OS === 'android') {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-  }
+  if (HAPTICS) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+}
+
+/** Görev tamamlandı: "başarı" titreşimi (animasyon DonePop'ta). */
+function celebrate() {
+  if (HAPTICS) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
 }
 
 export function TaskRow({ task, date, today, editable }: { task: Task; date: string; today: string; editable: boolean }) {
@@ -37,12 +43,14 @@ export function TaskRow({ task, date, today, editable }: { task: Task; date: str
 
   const onToggle = () => {
     if (!editable) return;
-    tap();
+    if (done) tap();
+    else celebrate();
     toggleDone(task.id, date);
   };
   const onInc = (delta: number) => {
     if (!editable) return;
-    tap();
+    if (!done && value + delta >= task.targetValue) celebrate();
+    else tap();
     increment(task.id, date, delta);
   };
   const step = task.targetValue >= 1000 ? 1000 : task.targetValue >= 100 ? 10 : task.targetValue > 30 ? 5 : 1;
@@ -65,7 +73,7 @@ export function TaskRow({ task, date, today, editable }: { task: Task; date: str
         backgroundColor: p.card,
         borderRadius: radius.lg,
         borderWidth: 1,
-        borderColor: done ? alpha(task.color, 0.55) : p.border,
+        borderColor: done ? alpha(p.success, 0.5) : p.border,
         padding: space.md,
         gap: space.sm,
         opacity: skipped ? 0.6 : 1,
@@ -95,21 +103,20 @@ export function TaskRow({ task, date, today, editable }: { task: Task; date: str
               <Txt v="small" numberOfLines={1} style={{ flexShrink: 1 }}>
                 {sub}
               </Txt>
-              {streak > 0 ? (
-                <Txt v="small" color={p.warning} numberOfLines={1} style={{ fontWeight: '700', flexShrink: 0 }}>
-                  🔥 {streak}
-                </Txt>
-              ) : null}
+              {streak > 0 ? <Streak n={streak} /> : null}
             </Row>
           </View>
         </Pressable>
 
         {isCount ? (
           <Row gap={6}>
-            <RoundBtn label="−" a11y={t('a11y.decrease')} onPress={() => onInc(-step)} disabled={!editable || value <= 0} color={task.color} />
-            <RoundBtn label={done ? '✓' : `+${step === 1 ? '1' : formatNum(step)}`} a11y={t('a11y.increase')} onPress={() => onInc(step)} disabled={!editable} color={task.color} filled={done} wide />
+            <RoundBtn label="−" a11y={t('a11y.decrease')} onPress={() => onInc(-step)} disabled={!editable || value <= 0} />
+            <DonePop done={done} scope={date}>
+              <RoundBtn label={done ? '✓' : `+${step === 1 ? '1' : formatNum(step)}`} a11y={t('a11y.increase')} onPress={() => onInc(step)} disabled={!editable} filled={done} wide />
+            </DonePop>
           </Row>
         ) : (
+          <DonePop done={done} scope={date}>
           <Pressable
             testID={`check-${task.title}`}
             accessibilityRole="checkbox"
@@ -123,16 +130,17 @@ export function TaskRow({ task, date, today, editable }: { task: Task; date: str
               height: 44,
               borderRadius: 22,
               borderWidth: 2.5,
-              borderColor: done ? task.color : missed ? p.danger : p.border,
-              backgroundColor: done ? task.color : 'transparent',
+              borderColor: done ? p.success : missed ? alpha(p.missed, 0.55) : p.dark ? p.textFaint : p.skipped,
+              backgroundColor: done ? p.success : missed ? p.missedSoft : 'transparent',
               alignItems: 'center',
               justifyContent: 'center',
               opacity: !editable ? 0.5 : pressed ? 0.7 : 1,
             })}>
-            <Text style={{ color: done ? '#fff' : missed ? p.danger : p.textFaint, fontSize: 20, fontWeight: '800' }}>
+            <Text style={{ color: done ? p.onSuccess : missed ? p.missedText : p.textDim, fontSize: 20, fontWeight: '800' }}>
               {done ? '✓' : missed ? '✕' : skipped ? '⏭' : ''}
             </Text>
           </Pressable>
+          </DonePop>
         )}
         <Pressable
           accessibilityRole="button"
@@ -140,12 +148,12 @@ export function TaskRow({ task, date, today, editable }: { task: Task; date: str
           onPress={() => setOpen((o) => !o)}
           hitSlop={8}
           style={{ paddingHorizontal: 2, paddingVertical: 8 }}>
-          <Text style={{ color: p.textFaint, fontSize: 18, fontWeight: '800' }}>⋮</Text>
+          <Text style={{ color: p.textDim, fontSize: 18, fontWeight: '800' }}>⋮</Text>
         </Pressable>
       </Row>
 
-      {isCount && !skipped ? <ProgressBar value={ratio ?? 0} color={task.color} height={6} /> : null}
-      {progress && !isCount ? <ProgressBar value={progress.target > 0 ? progress.done / progress.target : 0} color={progress.onTrack ? p.success : p.warning} height={6} /> : null}
+      {isCount && !skipped ? <ProgressBar value={ratio ?? 0} color={done ? p.success : p.primary} height={6} /> : null}
+      {progress && !isCount ? <ProgressBar value={progress.target > 0 ? progress.done / progress.target : 0} color={progress.met ? p.success : p.primary} height={6} /> : null}
 
       {open ? (
         <Row wrap>
@@ -166,7 +174,7 @@ export function TaskRow({ task, date, today, editable }: { task: Task; date: str
                 icon="✕"
                 label={t('task.actionMissed')}
                 selected={missed}
-                color={p.danger}
+                color={p.missed}
                 onPress={() => {
                   if (missed) clearLog(task.id, date);
                   else markMissed(task.id, date);
@@ -198,7 +206,6 @@ function RoundBtn({
   label,
   onPress,
   disabled,
-  color,
   filled,
   wide,
   a11y,
@@ -206,7 +213,6 @@ function RoundBtn({
   label: string;
   onPress: () => void;
   disabled?: boolean;
-  color: string;
   filled?: boolean;
   wide?: boolean;
   a11y: string;
@@ -226,10 +232,10 @@ function RoundBtn({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: filled ? color : alpha(color, p.dark ? 0.25 : 0.14),
+        backgroundColor: filled ? p.success : p.primarySoft,
         opacity: disabled ? 0.35 : pressed ? 0.7 : 1,
       })}>
-      <Text style={{ color: filled ? '#fff' : p.dark ? p.text : color, fontWeight: '800', fontSize: 16 }}>{label}</Text>
+      <Text style={{ color: filled ? p.onSuccess : p.dark ? p.text : p.primaryText, fontWeight: '800', fontSize: 16 }}>{label}</Text>
     </Pressable>
   );
 }

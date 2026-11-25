@@ -91,11 +91,11 @@ export default function ChallengeScreen() {
       <Screen padTop={false}>
         {err ? (
           <Card>
-            <Txt color={p.danger}>{err}</Txt>
+            <Txt color={p.missedText}>{err}</Txt>
             <Button small kind="soft" title={t('common.retry')} onPress={() => void load(true)} />
           </Card>
         ) : (
-          <ActivityIndicator color={p.primary} />
+          <ActivityIndicator color={p.social} />
         )}
       </Screen>
     );
@@ -111,7 +111,7 @@ export default function ChallengeScreen() {
 
   return (
     <Screen padTop={false}>
-      {err ? <Txt color={p.danger}>{err}</Txt> : null}
+      {err ? <Txt color={p.missedText}>{err}</Txt> : null}
       <ChallengeView
         detail={detail}
         today={today}

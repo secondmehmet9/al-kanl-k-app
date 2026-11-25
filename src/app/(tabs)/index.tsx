@@ -4,7 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TaskRow } from '@/components/TaskRow';
-import { Button, Card, EmptyState, ProgressBar, Row, Screen, SectionTitle, Txt } from '@/components/ui';
+import { Button, Card, EmptyState, ProgressBar, Row, Screen, SectionTitle, Streak, Txt } from '@/components/ui';
 import { useToday } from '@/components/useToday';
 import { useAppState } from '@/data/store';
 import { canEditDate } from '@/domain/checkin';
@@ -15,7 +15,7 @@ import { currentStreak } from '@/domain/streaks';
 import { BACKFILL_DAYS } from '@/domain/types';
 import { t } from '@/i18n';
 import { formatLongDate, formatPct, weekdayShort } from '@/i18n/format';
-import { alpha, liveScoreColor, radius, scoreColor, space, useTheme } from '@/theme';
+import { liveScoreTone, radius, scoreTone, space, useTheme } from '@/theme';
 
 export default function TodayScreen() {
   const p = useTheme();
@@ -50,7 +50,7 @@ export default function TodayScreen() {
   );
 
   const hasAny = tasks.some((x) => !x.archived);
-  const mainColor = offset === 0 ? liveScoreColor(p, score) : scoreColor(p, score);
+  const mainTone = offset === 0 ? liveScoreTone(p, score) : scoreTone(p, score);
 
   return (
     <Screen
@@ -68,10 +68,9 @@ export default function TodayScreen() {
               width: 60,
               height: 60,
               borderRadius: 30,
-              backgroundColor: p.primary,
+              backgroundColor: pressed ? p.primaryPressed : p.primary,
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: pressed ? 0.85 : 1,
               shadowColor: p.primary,
               shadowOpacity: 0.4,
               shadowRadius: 12,
@@ -90,7 +89,7 @@ export default function TodayScreen() {
       <Row gap={6}>
         {days.map((d) => {
           const sel = d.off === offset;
-          const c = d.off === 0 ? liveScoreColor(p, d.score) : scoreColor(p, d.score);
+          const c = (d.off === 0 ? liveScoreTone(p, d.score) : scoreTone(p, d.score)).fill;
           return (
             <Pressable
               key={d.key}
@@ -103,15 +102,15 @@ export default function TodayScreen() {
                 alignItems: 'center',
                 paddingVertical: 8,
                 borderRadius: radius.md,
-                backgroundColor: sel ? p.primary : p.card,
-                borderWidth: 1,
+                backgroundColor: sel ? p.primarySoft : p.card,
+                borderWidth: sel ? 1.5 : 1,
                 borderColor: sel ? p.primary : p.border,
                 gap: 2,
                 opacity: d.off > BACKFILL_DAYS && !sel ? 0.6 : 1,
               }}>
-              <Text style={{ fontSize: 11, fontWeight: '600', color: sel ? p.onPrimary : p.textFaint }}>{weekdayShort(isoWeekday(d.key))}</Text>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: sel ? p.onPrimary : p.text }}>{parts(d.key).d}</Text>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: d.score === null ? 'transparent' : sel ? p.onPrimary : c }} />
+              <Text style={{ fontSize: 11, fontWeight: '600', color: sel ? p.text : p.textDim }}>{weekdayShort(isoWeekday(d.key))}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: p.text }}>{parts(d.key).d}</Text>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: d.score === null ? 'transparent' : c }} />
             </Pressable>
           );
         })}
@@ -122,20 +121,16 @@ export default function TodayScreen() {
           <Row style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <View>
               <Txt v="label">{offset === 0 ? t('today.scoreToday') : t('today.scoreDay')}</Txt>
-              <Text testID="daily-score" style={{ fontSize: 46, fontWeight: '800', color: mainColor, letterSpacing: -1 }}>
+              <Text testID="daily-score" style={{ fontSize: 46, fontWeight: '800', color: mainTone.text, letterSpacing: -1 }}>
                 {formatPct(score)}
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end', gap: 6 }}>
-              <View style={{ backgroundColor: alpha(p.warning, 0.15), paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill }}>
-                <Txt v="small" color={p.warning} style={{ fontWeight: '700' }}>
-                  🔥 {t('today.bestStreak', { n: bestStreak })}
-                </Txt>
-              </View>
+              <Streak pill n={bestStreak} label={t('today.bestStreak', { n: bestStreak })} />
               <Txt v="small">{t('today.weekScore', { pct: formatPct(week) })}</Txt>
             </View>
           </Row>
-          <ProgressBar value={(score ?? 0) / 100} color={mainColor} height={10} />
+          <ProgressBar value={(score ?? 0) / 100} color={mainTone.fill} height={10} />
           <Txt v="dim">
             {dueCount > 0 ? t('today.doneOf', { done: doneCount, total: dueCount }) : t('today.nothingDue')}
             {skippedCount > 0 ? ` · ${t('today.skippedN', { n: skippedCount })}` : ''}

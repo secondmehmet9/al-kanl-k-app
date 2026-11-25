@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { Heatmap } from '@/components/Heatmap';
-import { Card, EmptyState, ProgressBar, Row, Screen, SectionTitle, Txt } from '@/components/ui';
+import { Card, EmptyState, ProgressBar, Row, Screen, SectionTitle, Streak, Txt } from '@/components/ui';
 import { useToday } from '@/components/useToday';
 import { useAppState } from '@/data/store';
 import { CATEGORIES } from '@/domain/categories';
@@ -12,7 +12,7 @@ import { computeScore, dailyScore, heatmapDays, monthlyScore, overallScore, week
 import { currentStreak } from '@/domain/streaks';
 import { t, tDyn } from '@/i18n';
 import { formatDayMonth, formatPct, monthName } from '@/i18n/format';
-import { liveScoreColor, radius, scoreColor, space, useTheme } from '@/theme';
+import { liveScoreTone, radius, ScoreTone, scoreTone, space, useTheme } from '@/theme';
 
 const WEEKS = 16;
 const TREND_WEEKS = 8;
@@ -54,30 +54,30 @@ export default function StatsScreen() {
     );
   }
 
-  const tiles: [string, number | null, string][] = [
-    [t('stats.today'), data.day, liveScoreColor(p, data.day)],
-    [t('stats.week'), data.week, scoreColor(p, data.week)],
-    [t('stats.month'), data.month, scoreColor(p, data.month)],
-    [t('stats.overall'), data.overall, scoreColor(p, data.overall)],
+  const tiles: [string, number | null, ScoreTone][] = [
+    [t('stats.today'), data.day, liveScoreTone(p, data.day)],
+    [t('stats.week'), data.week, scoreTone(p, data.week)],
+    [t('stats.month'), data.month, scoreTone(p, data.month)],
+    [t('stats.overall'), data.overall, scoreTone(p, data.overall)],
   ];
 
   return (
     <Screen>
       <Txt v="h1">{t('stats.title')}</Txt>
       <Pressable accessibilityRole="button" accessibilityLabel={t('scoreInfo.title')} onPress={() => router.push('/score-info')} hitSlop={10}>
-        <Txt color={p.primary} style={{ fontWeight: '700' }}>
+        <Txt color={p.primaryText} style={{ fontWeight: '700' }}>
           {t('stats.how')} ›
         </Txt>
       </Pressable>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.md }}>
-        {tiles.map(([label, value, color]) => (
+        {tiles.map(([label, value, tone]) => (
           <Card key={label} style={{ flexBasis: '47%', flexGrow: 1 }}>
             <Txt v="label">{label}</Txt>
-            <Text testID={`score-${label}`} style={{ fontSize: 34, fontWeight: '800', color, letterSpacing: -0.5 }}>
+            <Text testID={`score-${label}`} style={{ fontSize: 34, fontWeight: '800', color: tone.text, letterSpacing: -0.5 }}>
               {formatPct(value)}
             </Text>
-            <ProgressBar value={(value ?? 0) / 100} color={color} height={6} />
+            <ProgressBar value={(value ?? 0) / 100} color={tone.fill} height={6} />
           </Card>
         ))}
       </View>
@@ -94,7 +94,7 @@ export default function StatsScreen() {
             const last = i === data.trend.length - 1;
             return (
               <View key={w.start} style={{ flex: 1, alignItems: 'center', gap: 4, height: '100%', justifyContent: 'flex-end' }}>
-                <Txt v="small" style={{ fontSize: 10, fontWeight: '700' }} color={scoreColor(p, w.score)}>
+                <Txt v="small" style={{ fontSize: 10, fontWeight: '700' }} color={scoreTone(p, w.score).text}>
                   {w.score === null ? '' : Math.round(w.score)}
                 </Txt>
                 <View
@@ -102,7 +102,7 @@ export default function StatsScreen() {
                     width: '100%',
                     height: `${Math.max(3, Math.round((w.score ?? 0) * 0.68))}%`,
                     borderRadius: 6,
-                    backgroundColor: w.score === null ? p.track : scoreColor(p, w.score),
+                    backgroundColor: scoreTone(p, w.score).fill,
                     opacity: last ? 1 : 0.75,
                   }}
                 />
@@ -126,11 +126,11 @@ export default function StatsScreen() {
                   <Txt>
                     {cat.icon} {tDyn(`cat.${cat.id}`)}
                   </Txt>
-                  <Txt style={{ fontWeight: '700' }} color={scoreColor(p, score)}>
+                  <Txt style={{ fontWeight: '700' }} color={scoreTone(p, score).text}>
                     {formatPct(score)}
                   </Txt>
                 </Row>
-                <ProgressBar value={(score ?? 0) / 100} color={cat.color} height={6} />
+                <ProgressBar value={(score ?? 0) / 100} color={scoreTone(p, score).fill} height={6} />
               </View>
             ))}
           </Card>
@@ -153,10 +153,10 @@ export default function StatsScreen() {
                   <Txt numberOfLines={1} style={{ fontWeight: '600' }}>
                     {task.title}
                   </Txt>
-                  <Txt v="small">🔥 {currentStreak(task, logs[task.id], today)}</Txt>
+                  <Streak n={currentStreak(task, logs[task.id], today)} />
                 </View>
                 <View style={{ backgroundColor: p.cardAlt, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
-                  <Txt style={{ fontWeight: '800' }} color={scoreColor(p, pct)}>
+                  <Txt style={{ fontWeight: '800' }} color={scoreTone(p, pct).text}>
                     {formatPct(pct)}
                   </Txt>
                 </View>

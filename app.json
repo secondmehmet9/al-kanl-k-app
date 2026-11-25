@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0E0E11",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.mehmetdonmez.aliskanlik",
@@ -37,7 +38,7 @@
       [
         "expo-notifications",
         {
-          "color": "#6C5CE7",
+          "color": "#FC5200",
           "enableRemoteNotifications": false
         }
       ],

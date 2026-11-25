@@ -6,7 +6,7 @@ import { t } from '@/i18n';
 import { formatDayMonth, formatNum, formatPct, recurrenceLabel } from '@/i18n/format';
 import { buildLeaderboard } from '@/social/leaderboard';
 import { ChallengeDetail, REACTION_EMOJIS } from '@/social/types';
-import { alpha, radius, scoreColor, space, useTheme } from '@/theme';
+import { alpha, radius, scoreTone, space, useTheme } from '@/theme';
 
 import { Card, ProgressBar, Row, SectionTitle, Txt } from './ui';
 
@@ -44,11 +44,11 @@ export function ChallengeView({
           <Txt v="small">
             {formatDayMonth(challenge.startDate)} – {formatDayMonth(challenge.endDate)}
           </Txt>
-          <Txt v="small" style={{ fontWeight: '700' }} color={ended ? p.textFaint : p.primary}>
+          <Txt v="small" style={{ fontWeight: '700' }} color={ended ? p.textDim : p.socialText}>
             {status}
           </Txt>
         </Row>
-        <ProgressBar value={elapsed / total} height={6} />
+        <ProgressBar value={elapsed / total} color={p.social} height={6} />
         {tasks.map((ct) => (
           <Row key={ct.id} gap={space.md} style={{ marginTop: 4 }}>
             <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: alpha(ct.color, p.dark ? 0.28 : 0.15), alignItems: 'center', justifyContent: 'center' }}>
@@ -66,26 +66,28 @@ export function ChallengeView({
       </Card>
 
       <Pressable accessibilityRole="button" accessibilityLabel={t('ch.copyCode')} onPress={onCopyCode} disabled={!onCopyCode}>
-        <Card style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: p.primarySoft, borderColor: 'transparent' }}>
+        <Card style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: p.socialSoft, borderColor: 'transparent' }}>
           <View style={{ flex: 1 }}>
-            <Txt v="label" color={p.primary}>
+            <Txt v="label" color={p.socialText}>
               {t('ch.joinCode')}
             </Txt>
             <Txt v="small">{t('ch.joinCodeHint')}</Txt>
           </View>
-          <Text style={{ fontSize: 24, fontWeight: '800', letterSpacing: 3, color: p.primary }}>{challenge.joinCode}</Text>
+          <Text style={{ fontSize: 24, fontWeight: '800', letterSpacing: 3, color: p.socialText }}>{challenge.joinCode}</Text>
         </Card>
       </Pressable>
 
       <SectionTitle>{t('ch.leaderboard', { n: members.length })}</SectionTitle>
       {rows.map((row) => {
         const me = row.userId === myUserId;
+        const first = row.rank === 1 && row.score !== null;
+        const tone = scoreTone(p, row.score);
         const todays = reactions.filter((r) => r.toUser === row.userId && r.date === today);
         const counts = REACTION_EMOJIS.map((e) => ({ e, n: todays.filter((r) => r.emoji === e).length, mine: todays.some((r) => r.emoji === e && r.fromUser === myUserId) }));
         return (
           <View
             key={row.userId}
-            style={{ backgroundColor: p.card, borderRadius: radius.lg, borderWidth: me ? 2 : 1, borderColor: me ? p.primary : p.border, padding: space.md, gap: space.sm }}>
+            style={{ backgroundColor: p.card, borderRadius: radius.lg, borderWidth: me || first ? 2 : 1, borderColor: first ? p.gold : me ? p.social : p.border, padding: space.md, gap: space.sm }}>
             <Row gap={space.md}>
               <Text style={{ fontSize: row.rank <= 3 && row.score !== null ? 26 : 16, width: 34, textAlign: 'center', fontWeight: '800', color: p.textDim }}>
                 {row.rank <= 3 && row.score !== null ? MEDALS[row.rank - 1] : `${row.rank}.`}
@@ -99,9 +101,9 @@ export function ChallengeView({
                   🔥 {row.streak} · ✓ {row.completions} · {row.todayRatio >= 1 ? t('ch.todayDone') : row.todayRatio > 0 ? t('ch.todayPartial', { pct: Math.round(row.todayRatio * 100) }) : t('ch.todayNotYet')}
                 </Txt>
               </View>
-              <Text style={{ fontSize: 24, fontWeight: '800', color: scoreColor(p, row.score) }}>{formatPct(row.score)}</Text>
+              <Text style={{ fontSize: 24, fontWeight: '800', color: first ? p.goldText : tone.text }}>{formatPct(row.score)}</Text>
             </Row>
-            <ProgressBar value={(row.score ?? 0) / 100} color={scoreColor(p, row.score)} height={6} />
+            <ProgressBar value={(row.score ?? 0) / 100} color={first ? p.gold : tone.fill} height={6} />
             <Row gap={6} wrap>
               {counts.map(({ e, n, mine }) =>
                 me ? (
@@ -121,7 +123,7 @@ export function ChallengeView({
                     style={({ pressed }) => ({
                       flexDirection: 'row',
                       gap: 3,
-                      backgroundColor: mine ? alpha(p.primary, 0.18) : p.cardAlt,
+                      backgroundColor: mine ? alpha(p.social, 0.3) : p.cardAlt,
                       borderRadius: radius.pill,
                       paddingHorizontal: 9,
                       paddingVertical: 4,

@@ -43,7 +43,7 @@ export const TEMPLATES: TaskTemplate[] = [
   d('erken_kalk', '⏰', '#F59E0B', 'sabah', { reminderTime: '06:30' }),
   d('yatak_topla', '🛏️', '#F97316', 'sabah'),
   d('soguk_dus', '🚿', '#06B6D4', 'sabah'),
-  d('gunu_planla', '📝', '#6C5CE7', 'sabah', { reminderTime: '08:00' }),
+  d('gunu_planla', '📝', '#7B61FF', 'sabah', { reminderTime: '08:00' }),
   // Sağlık
   d('su_ic', '💧', '#3B82F6', 'saglik', { kind: 'count', targetValue: 8, unitKey: 'bardak' }),
   d('vitamin', '💊', '#EF4444', 'saglik', { reminderTime: '09:00' }),
@@ -62,11 +62,11 @@ export const TEMPLATES: TaskTemplate[] = [
   d('dil', '🗣️', '#3B82F6', 'ogrenme', { kind: 'count', targetValue: 15, unitKey: 'dk' }),
   d('meditasyon', '🧘', '#14B8A6', 'zihin', { kind: 'count', targetValue: 10, unitKey: 'dk' }),
   d('gunluk', '✍️', '#8B5CF6', 'zihin'),
-  d('ekran_yok', '📵', '#6C5CE7', 'zihin', { reminderTime: '22:00' }),
+  d('ekran_yok', '📵', '#7B61FF', 'zihin', { reminderTime: '22:00' }),
   // İş
   d('derin_calisma', '🧠', '#3B82F6', 'is', { recurrenceType: 'weekdays', recurrenceDays: [1, 2, 3, 4, 5], kind: 'count', targetValue: 2, unitKey: 'saat' }),
   d('eposta_sifir', '📧', '#06B6D4', 'is', { recurrenceType: 'weekdays', recurrenceDays: [1, 2, 3, 4, 5] }),
-  d('haftalik_plan', '🗓️', '#6C5CE7', 'is', { recurrenceType: 'weekdays', recurrenceDays: [1], weight: 2 }),
+  d('haftalik_plan', '🗓️', '#7B61FF', 'is', { recurrenceType: 'weekdays', recurrenceDays: [1], weight: 2 }),
   d('aylik_rapor', '📈', '#F59E0B', 'is', { recurrenceType: 'monthly_n', periodTargetN: 1, weight: 3 }),
   // Kişisel / ev / sosyal / finans
   d('aile_ara', '📞', '#EC4899', 'sosyal', { recurrenceType: 'weekly_n', periodTargetN: 2, weight: 2 }),

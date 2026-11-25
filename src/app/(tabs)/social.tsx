@@ -131,7 +131,7 @@ function Login() {
             }
           />
         )}
-        {err ? <Txt color={p.danger}>{err}</Txt> : null}
+        {err ? <Txt color={p.missedText}>{err}</Txt> : null}
         <Txt v="small">{t('social.loginPrivacy')}</Txt>
       </Card>
     </Screen>
@@ -219,21 +219,21 @@ function Hub({ userId, email }: { userId: string; email: string | null }) {
   return (
     <Screen>
       <Txt v="h1">{t('social.title')}</Txt>
-      {loading ? <ActivityIndicator color={p.primary} /> : null}
+      {loading ? <ActivityIndicator color={p.social} /> : null}
       {err ? (
         <Card>
-          <Txt color={p.danger}>{err}</Txt>
+          <Txt color={p.missedText}>{err}</Txt>
           <Button small kind="soft" title={t('common.retry')} onPress={() => void load()} />
         </Card>
       ) : null}
 
       {profile ? (
-        <Card style={{ backgroundColor: p.primarySoft, borderColor: 'transparent' }}>
-          <Txt v="label" color={p.primary}>
+        <Card style={{ backgroundColor: p.socialSoft, borderColor: 'transparent' }}>
+          <Txt v="label" color={p.socialText}>
             {t('social.myCode')}
           </Txt>
           <Row style={{ justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 28, fontWeight: '800', letterSpacing: 3, color: p.primary }}>{profile.friendCode}</Text>
+            <Text style={{ fontSize: 28, fontWeight: '800', letterSpacing: 3, color: p.socialText }}>{profile.friendCode}</Text>
             <Button
               small
               title={t('common.copy')}
@@ -268,7 +268,7 @@ function Hub({ userId, email }: { userId: string; email: string | null }) {
             <Txt v="h3" style={{ flex: 1 }} numberOfLines={1}>
               🏆 {c.title}
             </Txt>
-            <Txt v="small" color={today > c.endDate ? p.textFaint : p.primary} style={{ fontWeight: '700' }}>
+            <Txt v="small" color={today > c.endDate ? p.textDim : p.socialText} style={{ fontWeight: '700' }}>
               {today > c.endDate ? t('ch.ended') : today < c.startDate ? t('ch.upcoming') : t('ch.active')}
             </Txt>
           </Row>

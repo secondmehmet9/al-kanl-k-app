@@ -79,7 +79,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  theme: 'system',
+  theme: 'dark',
   notificationsEnabled: true,
   displayName: '',
   onboarded: false,
